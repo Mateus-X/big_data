@@ -11,40 +11,40 @@
 
 \title{Análise Comparativa de Desempenho entre Databricks e PostgreSQL no Armazenamento e Consulta de Dados Relacionados a Aderência em Cursos Tecnológicos}
 
-\author{João da Silva\inst{1}, Maria Oliveira\inst{1}, Pedro Santos\inst{1}, Ana Costa\inst{1}, Lucas Almeida\inst{1}}
+\author{Anna Luiza Mariano\inst{1}, Arthur Deretti\inst{1}, Maria Eduarda Ferreira\inst{1}, Matheus Xavier\inst{1}, Rafael Pompônio\inst{1}}
 
 \address{Curso de Tecnologia em Análise e Desenvolvimento de Sistemas \\ Universidade Federal do Paraná (UFPR)\\
-\email{grupo.bigdata@ufpr.br}}
+}
 
 \begin{document}
 
 \maketitle
 
-\begin{abstract}
-Este artigo apresenta uma análise comparativa entre o banco de dados não relacional MongoDB e o sistema relacional PostgreSQL, aplicados ao armazenamento e consulta de dados climáticos obtidos do portal público do INMET. O objetivo é avaliar o desempenho de cada sistema em operações de leitura, atualização e agregação de dados em um cenário de Big Data.
-\end{abstract}
-
 \begin{resumo}
-Este artigo apresenta uma análise comparativa entre o banco de dados não relacional MongoDB e o sistema relacional PostgreSQL, aplicados ao armazenamento e consulta de dados climáticos obtidos do portal público do INMET. O objetivo é avaliar o desempenho de cada sistema em operações de leitura, atualização e agregação de dados em um cenário de Big Data.
+Este artigo apresenta uma análise comparativa entre a plataforma de processamento de dados Databricks e o sistema relacional PostgreSQL, aplicados ao armazenamento e consulta de dados relacionados a aderência em cursos tecnológicos obtidos a partir do portal público do SISU (Sistema de Seleção Unificada). O objetivo é avaliar o desempenho de cada sistema em operações de leitura, atualização e agregação de dados em um cenário de Big Data.
 \end{resumo}
 
 \section{Introdução}
 
 O crescimento exponencial do volume de dados gerados por sensores, redes sociais e dispositivos conectados trouxe novos desafios para o armazenamento e a manipulação eficiente de informações. Nesse contexto, surgiram as tecnologias de \textit{Big Data}, que oferecem soluções escaláveis para o tratamento de grandes volumes de dados de maneira distribuída.
 
-Este trabalho tem como objetivo comparar o desempenho de uma tecnologia NoSQL, o MongoDB, com o sistema relacional PostgreSQL, aplicando ambas as ferramentas a um conjunto de dados climáticos reais. A análise foca no tempo de execução, uso de memória e facilidade de modelagem.
+Este trabalho tem como objetivo comparar o desempenho de uma tecnologia BigData, o Databricks, com o sistema relacional PostgreSQL, aplicando ambas as ferramentas a um conjunto de dados institucionais reais. A análise foca no tempo de execução, uso de memória e facilidade de modelagem.
 
 \section{Tecnologia Big Data Utilizada}
 
-O \textbf{MongoDB} é um banco de dados orientado a documentos que armazena informações em formato \textit{JSON-like}. Ele é amplamente utilizado em aplicações que demandam flexibilidade de esquema e alta escalabilidade horizontal. 
+O \textbf{Databricks} é uma plataforma analítica aberta e unificada para criação, implantação, compartilhamento e manutenção de análises de dados de nível empresarial, e utiliza tecnologias que garantem desempenho, escalabilidade e controle transacional sobre grandes volumes de dados.
 
-Entre suas principais vantagens estão a fácil integração com linguagens modernas e o suporte nativo a consultas complexas e agregações paralelas. Por outro lado, o PostgreSQL foi escolhido como representante do modelo relacional tradicional, conhecido por sua robustez, consistência e suporte a transações ACID.
+A modelagem de dados no Databricks baseia-se na arquitetura Data Lakehouse, que combina a flexibilidade dos Data Lakes com a governança dos Data Warehouses. Os dados podem ser estruturados, semiestruturados ou não estruturados, e são organizados em camadas: bronze (dados brutos), silver (dados tratados) e gold (dados prontos para análise). O processamento ocorre de forma distribuída, permitindo tanto cargas em lote (batch) quanto em tempo real (streaming).
+
+No mercado, o Databricks é amplamente utilizado por empresas que trabalham com Big Data e inteligência artificial. Organizações utilizam a plataforma para análise preditiva, detecção de fraudes, personalização de serviços e otimização de processos industriais. Essa adoção se deve à capacidade da plataforma de lidar com grandes volumes de dados de forma eficiente e colaborativa.
+
+Em comparação com bancos de dados relacionais, o Databricks se destaca em cenários que exigem escalabilidade, processamento paralelo e integração com dados não estruturados. Enquanto os bancos relacionais são mais adequados para aplicações transacionais e dados estruturados, o Databricks é ideal para análise de grandes volumes de informações, aprendizado de máquina e processamento em tempo real, características típicas de ambientes de Big Data.
 
 \section{Estudo de Caso}
 
-O estudo de caso utiliza dados meteorológicos públicos fornecidos pelo \textit{Instituto Nacional de Meteorologia (INMET)}. O conjunto contém registros diários de temperatura, umidade e precipitação de 2010 a 2024, totalizando aproximadamente 10 milhões de linhas.
+O estudo de caso utiliza dados públicos fornecidos pelo \textit{Sistema de Seleção Unificada (Sisu)}. O conjunto contém registros de modalidade de concorrência, sexo e cpf dos concorrentes, instituição de ensino e nome do curso tecnológico, totalizando aproximadamente 400 mil linhas.
 
-Foram realizadas operações de importação, filtragem por cidade, cálculo de médias e agregações por período. O mesmo conjunto foi carregado e consultado tanto no MongoDB quanto no PostgreSQL, utilizando scripts Python para execução automatizada e coleta de métricas.
+Foram realizadas operações de importação, filtragem por , cálculo de médias e agregações por período. O mesmo conjunto foi carregado e consultado tanto no Databricks quanto no PostgreSQL, utilizando scripts Python para execução automatizada e coleta de métricas.
 
 \section{Resultados e Avaliações}
 
@@ -69,10 +69,12 @@ Com base nos experimentos realizados, conclui-se que o MongoDB oferece maior fle
 
 Recomenda-se o uso do MongoDB em cenários de coleta e análise contínua de dados, como sistemas meteorológicos e de IoT, enquanto o PostgreSQL é mais indicado para aplicações financeiras e corporativas.
 
+
 \begin{thebibliography}{99}
 
-\bibitem{inmet}
-Instituto Nacional de Meteorologia (INMET). Dados Históricos. Disponível em: \url{https://portal.inmet.gov.br/dadoshistoricos}. Acesso em: nov. 2025.
+\bibitem{databricks}
+Introdução ao Databricks no AWS. Disponível em: \url{https://docs.databricks.com/aws/pt/introduction/#casos-de-uso-comuns}
+. Acesso em: nov. 2025.
 
 \bibitem{mongodb}
 Chodorow, K. (2013). \textit{MongoDB: The Definitive Guide}. O'Reilly Media.
