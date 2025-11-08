@@ -1,0 +1,92 @@
+% ------------------------------------------------------------------------
+% Artigo de Exemplo no Formato SBC - Projeto de Big Data (DS340 - UFPR)
+% ------------------------------------------------------------------------
+
+\documentclass[12pt]{article}
+
+\usepackage{sbc-template}
+\usepackage{graphicx,url}
+\usepackage[utf8]{inputenc}
+\usepackage[brazil]{babel}
+
+\title{Análise Comparativa de Desempenho entre Databricks e PostgreSQL no Armazenamento e Consulta de Dados Relacionados a Aderência em Cursos Tecnológicos}
+
+\author{João da Silva\inst{1}, Maria Oliveira\inst{1}, Pedro Santos\inst{1}, Ana Costa\inst{1}, Lucas Almeida\inst{1}}
+
+\address{Curso de Tecnologia em Análise e Desenvolvimento de Sistemas \\ Universidade Federal do Paraná (UFPR)\\
+\email{grupo.bigdata@ufpr.br}}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Este artigo apresenta uma análise comparativa entre o banco de dados não relacional MongoDB e o sistema relacional PostgreSQL, aplicados ao armazenamento e consulta de dados climáticos obtidos do portal público do INMET. O objetivo é avaliar o desempenho de cada sistema em operações de leitura, atualização e agregação de dados em um cenário de Big Data.
+\end{abstract}
+
+\begin{resumo}
+Este artigo apresenta uma análise comparativa entre o banco de dados não relacional MongoDB e o sistema relacional PostgreSQL, aplicados ao armazenamento e consulta de dados climáticos obtidos do portal público do INMET. O objetivo é avaliar o desempenho de cada sistema em operações de leitura, atualização e agregação de dados em um cenário de Big Data.
+\end{resumo}
+
+\section{Introdução}
+
+O crescimento exponencial do volume de dados gerados por sensores, redes sociais e dispositivos conectados trouxe novos desafios para o armazenamento e a manipulação eficiente de informações. Nesse contexto, surgiram as tecnologias de \textit{Big Data}, que oferecem soluções escaláveis para o tratamento de grandes volumes de dados de maneira distribuída.
+
+Este trabalho tem como objetivo comparar o desempenho de uma tecnologia NoSQL, o MongoDB, com o sistema relacional PostgreSQL, aplicando ambas as ferramentas a um conjunto de dados climáticos reais. A análise foca no tempo de execução, uso de memória e facilidade de modelagem.
+
+\section{Tecnologia Big Data Utilizada}
+
+O \textbf{MongoDB} é um banco de dados orientado a documentos que armazena informações em formato \textit{JSON-like}. Ele é amplamente utilizado em aplicações que demandam flexibilidade de esquema e alta escalabilidade horizontal. 
+
+Entre suas principais vantagens estão a fácil integração com linguagens modernas e o suporte nativo a consultas complexas e agregações paralelas. Por outro lado, o PostgreSQL foi escolhido como representante do modelo relacional tradicional, conhecido por sua robustez, consistência e suporte a transações ACID.
+
+\section{Estudo de Caso}
+
+O estudo de caso utiliza dados meteorológicos públicos fornecidos pelo \textit{Instituto Nacional de Meteorologia (INMET)}. O conjunto contém registros diários de temperatura, umidade e precipitação de 2010 a 2024, totalizando aproximadamente 10 milhões de linhas.
+
+Foram realizadas operações de importação, filtragem por cidade, cálculo de médias e agregações por período. O mesmo conjunto foi carregado e consultado tanto no MongoDB quanto no PostgreSQL, utilizando scripts Python para execução automatizada e coleta de métricas.
+
+\section{Resultados e Avaliações}
+
+Os testes foram realizados em uma máquina com processador Intel i7, 16 GB de RAM e SSD de 512 GB, rodando Ubuntu 22.04. Cada operação foi executada três vezes, e o tempo médio foi registrado.
+
+\begin{center}
+\begin{tabular}{|l|c|c|}
+\hline
+\textbf{Operação} & \textbf{PostgreSQL (ms)} & \textbf{MongoDB (ms)} \\ \hline
+Inserção de Dados & 261 & 731 \\ \hline
+Atualização        & 3   & 7   \\ \hline
+Consulta Média     & 47  & 2   \\ \hline
+Busca de Texto     & 124 & 39  \\ \hline
+\end{tabular}
+\end{center}
+
+Os resultados mostram que o MongoDB teve desempenho superior em consultas simples e buscas textuais, enquanto o PostgreSQL se destacou em operações de escrita e consistência transacional. Em termos de uso de memória, o MongoDB apresentou consumo cerca de 30\% maior, mas com menor tempo de resposta.
+
+\section{Conclusão}
+
+Com base nos experimentos realizados, conclui-se que o MongoDB oferece maior flexibilidade e velocidade em consultas com alto volume de dados sem estrutura rígida, sendo ideal para aplicações que priorizam escalabilidade. Já o PostgreSQL se mantém mais adequado em contextos que exigem integridade relacional e consistência de dados.
+
+Recomenda-se o uso do MongoDB em cenários de coleta e análise contínua de dados, como sistemas meteorológicos e de IoT, enquanto o PostgreSQL é mais indicado para aplicações financeiras e corporativas.
+
+\begin{thebibliography}{99}
+
+\bibitem{inmet}
+Instituto Nacional de Meteorologia (INMET). Dados Históricos. Disponível em: \url{https://portal.inmet.gov.br/dadoshistoricos}. Acesso em: nov. 2025.
+
+\bibitem{mongodb}
+Chodorow, K. (2013). \textit{MongoDB: The Definitive Guide}. O'Reilly Media.
+
+\bibitem{postgresql}
+Momjian, B. (2021). \textit{PostgreSQL: Introduction and Concepts}. Addison-Wesley.
+
+\bibitem{sbc}
+Sociedade Brasileira de Computação. \textit{Template para Artigos e Capítulos de Livros}. Disponível em: \url{http://www.sbc.org.br/documentos-da-sbc}.
+
+\end{thebibliography}
+
+\section*{Anexos}
+
+Os scripts utilizados para importação e consulta dos dados foram desenvolvidos em Python, utilizando as bibliotecas \textit{pymongo} e \textit{psycopg2}. O código completo, incluindo o \textit{how-to} de execução, encontra-se disponível em repositório GitHub vinculado ao projeto.
+
+\end{document}
