@@ -11,7 +11,7 @@
 
 \title{Análise Comparativa de Desempenho entre Databricks e PostgreSQL no Armazenamento e Consulta de Dados Relacionados a Aderência em Cursos Tecnológicos}
 
-\author{Anna Luiza Mariano\inst{1}, Arthur Deretti\inst{1}, Maria Eduarda Ferreira\inst{1}, Matheus Xavier\inst{1}, Rafael Pompônio\inst{1}}
+\author{Anna Luiza Mariano\inst{1}, Arthur Deretti\inst{1}, Maria Eduarda Ferreira\inst{1} \\ Mateus Xavier\inst{1}, Rafael Pompônio\inst{1}}
 
 \address{Curso de Tecnologia em Análise e Desenvolvimento de Sistemas \\ Universidade Federal do Paraná (UFPR)\\
 }
@@ -21,7 +21,7 @@
 \maketitle
 
 \begin{resumo}
-Este artigo apresenta uma análise comparativa entre a plataforma de processamento de dados Databricks e o sistema relacional PostgreSQL, aplicados ao armazenamento e consulta de dados relacionados a aderência em cursos tecnológicos obtidos a partir do portal público do SISU (Sistema de Seleção Unificada). O objetivo é avaliar o desempenho de cada sistema em operações de leitura, atualização e agregação de dados em um cenário de Big Data.
+Este artigo apresenta uma análise comparativa entre a plataforma de processamento de dados Databricks e o sistema relacional PostgreSQL, aplicados ao armazenamento e consulta de dados relacionados a aderência em cursos tecnológicos obtidos a partir do portal público do SISU (Sistema de Seleção Unificada) e do ProUni (Portal Único de Acesso ao Ensino Superior). O objetivo é avaliar o desempenho de cada sistema em operações de leitura, atualização e agregação de dados em um cenário de Big Data.
 \end{resumo}
 
 \section{Introdução}
@@ -30,13 +30,43 @@ O crescimento exponencial do volume de dados gerados por sensores, redes sociais
 
 Este trabalho tem como objetivo comparar o desempenho de uma tecnologia BigData, o Databricks, com o sistema relacional PostgreSQL, aplicando ambas as ferramentas a um conjunto de dados institucionais reais. A análise foca no tempo de execução, uso de memória e facilidade de modelagem.
 
+Assim, busca-se investigar se tecnologias de Big Data, como o Databricks, oferecem vantagens significativas de desempenho e escalabilidade em relação a sistemas relacionais tradicionais, como o PostgreSQL, especialmente em cenários de grande volume e variedade de dados.
+
+Mais do que determinar qual tecnologia é superior, o propósito desta comparação é compreender como cada solução se destaca em contextos distintos. Enquanto o Databricks, apoiado pelo Apache Spark, foi projetado para processar grandes massas de dados de forma distribuída e escalável, o PostgreSQL mantém sua força em ambientes transacionais e estruturados, que exigem integridade e consistência rigorosas.
+
+Dessa forma, a análise busca evidenciar as especificidades e complementaridades entre essas abordagens, mostrando que a escolha entre uma tecnologia de Big Data e um sistema relacional não é excludente, mas sim dependente do tipo de problema, da natureza dos dados e dos requisitos de desempenho e flexibilidade de cada cenário.\\
+
 \section{Tecnologia Big Data Utilizada}
 
-O \textbf{Databricks} é uma plataforma analítica aberta e unificada para criação, implantação, compartilhamento e manutenção de análises de dados de nível empresarial, e utiliza tecnologias que garantem desempenho, escalabilidade e controle transacional sobre grandes volumes de dados.
+\subsection{Databricks: Arquitetura e Funcionalidades Técnicas}
 
-A modelagem de dados no Databricks baseia-se na arquitetura Data Lakehouse, que combina a flexibilidade dos Data Lakes com a governança dos Data Warehouses. Os dados podem ser estruturados, semiestruturados ou não estruturados, e são organizados em camadas: bronze (dados brutos), silver (dados tratados) e gold (dados prontos para análise). O processamento ocorre de forma distribuída, permitindo tanto cargas em lote (batch) quanto em tempo real (streaming).
+O Databricks é uma plataforma unificada para processamento de dados e análise de Big Data, construída sobre o Apache Spark, um dos motores de processamento de dados mais rápidos e eficientes. A plataforma oferece uma solução robusta para o processamento distribuído de grandes volumes de dados, além de integrar recursos avançados de machine learning e inteligência artificial.
 
-No mercado, o Databricks é amplamente utilizado por empresas que trabalham com Big Data e inteligência artificial. Organizações utilizam a plataforma para análise preditiva, detecção de fraudes, personalização de serviços e otimização de processos industriais. Essa adoção se deve à capacidade da plataforma de lidar com grandes volumes de dados de forma eficiente e colaborativa.
+\subsubsection{Arquitetura de Nuvem e Processamento Distribuído com Apache Spark}
+
+Databricks foi projetado para rodar nativamente na nuvem, aproveitando as capacidades de escalabilidade, elasticidade e recursos sob demanda oferecidos pelos principais provedores de nuvem (como AWS, Azure e Google Cloud Platform). Ao contrário de soluções tradicionais que podem ser implementadas localmente em clusters físicos, o Databricks elimina a necessidade de gerenciamento de infraestrutura, permitindo que as empresas escalem seus projetos conforme a demanda.
+
+O Apache Spark é o motor subjacente que possibilita o processamento distribuído em larga escala no Databricks. Ele é otimizado para operações de leitura e escrita em massa, bem como para tarefas complexas de análise e aprendizado de máquina. O Spark oferece suporte a tarefas como:
+
+\begin{itemize}
+    \item \textbf{Processamento em lote (batch):} Ideal para grandes volumes de dados históricos ou análises periódicas.
+    \item \textbf{Processamento em tempo real (streaming):} Permite o consumo e processamento de dados à medida que são gerados, suportando aplicações em tempo real.
+    \item \textbf{Análises interativas:} Com Spark SQL e APIs em Python, Scala, R e Java, é possível realizar consultas ad-hoc sobre grandes conjuntos de dados.
+\end{itemize}
+
+Além disso, o Databricks permite a execução de notebooks interativos, onde os usuários podem escrever código, visualizar dados e realizar análises em tempo real, tudo dentro da plataforma. Os notebooks são colaborativos, possibilitando a colaboração entre equipes, e podem ser integrados a outras ferramentas de BI (business intelligence) e visualização.
+
+\subsubsection{Delta Lake: A Solução de Governança para Dados no Databricks}
+
+Uma das principais inovações do Databricks é o conceito de Delta Lake, uma camada de armazenamento transacional baseada no Apache Spark que garante a integridade e consistência dos dados. O Delta Lake utiliza a arquitetura ACID (Atomicidade, Consistência, Isolamento e Durabilidade), que oferece recursos como:
+
+\begin{itemize}
+    \item \textbf{Versionamento de dados:} O Delta Lake mantém o histórico de todas as alterações nos dados, permitindo que os usuários possam "voltar no tempo" e acessar versões anteriores dos dados, facilitando a detecção e correção de erros.
+    \item \textbf{Governança de dados:} A plataforma garante integridade e qualidade nos dados, com funcionalidades como schema enforcement (aplicação automática de um esquema de dados) e schema evolution (capacidade de evoluir o esquema conforme os dados mudam ao longo do tempo).
+    \item \textbf{Upserts e Deletes eficientes:} Ao contrário dos tradicionais data lakes, que não possuem um mecanismo eficaz para operações de atualização e exclusão de dados, o Delta Lake permite operações de MERGE, onde é possível combinar dados de diferentes fontes de forma otimizada, sem necessidade de reprocessamento completo.
+\end{itemize}
+
+O uso de Delta Tables, que são tabelas armazenadas em formato Parquet dentro do Delta Lake, é fundamental para a construção de pipelines de dados que exigem alta confiabilidade e desempenho, sem perder a flexibilidade e escalabilidade dos data lakes.
 
 Em comparação com bancos de dados relacionais, o Databricks se destaca em cenários que exigem escalabilidade, processamento paralelo e integração com dados não estruturados. Enquanto os bancos relacionais são mais adequados para aplicações transacionais e dados estruturados, o Databricks é ideal para análise de grandes volumes de informações, aprendizado de máquina e processamento em tempo real, características típicas de ambientes de Big Data.
 
