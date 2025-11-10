@@ -72,22 +72,88 @@ Em comparação com bancos de dados relacionais, o Databricks se destaca em cen�
 
 \section{Estudo de Caso}
 
-O estudo de caso utiliza dados públicos fornecidos pelo \textit{Sistema de Seleção Unificada (Sisu)}. O conjunto contém registros de modalidade de concorrência, sexo e cpf dos concorrentes, instituição de ensino e nome do curso tecnológico, totalizando aproximadamente 400 mil linhas.
+\subsection{Dados Utilizados}
 
-Foram realizadas operações de importação, filtragem por , cálculo de médias e agregações por período. O mesmo conjunto foi carregado e consultado tanto no Databricks quanto no PostgreSQL, utilizando scripts Python para execução automatizada e coleta de métricas.
+Para a construção do estudo de caso, foram utilizados dois conjuntos de dados públicos referentes a programas de acesso ao ensino superior brasileiro: o \textit{Prouni} e o \textit{Sisu}.  
+
+\textbf{Prouni:} contém registros de inscrições entre os anos de 2006 e 2020, abrangendo atributos como:
+\begin{itemize}
+    \item \texttt{ano} – ano da inscrição;
+    \item \texttt{sigla\_uf} – unidade federativa;
+    \item \texttt{id\_municipio} – código do município;
+    \item \texttt{cpf} – identificador individual do candidato;
+    \item \texttt{sexo}, \texttt{raca\_cor}, \texttt{data\_nascimento} - informações sobre o candidato;
+    \item \texttt{beneficiario\_deficiente} – indicador de deficiência;
+    \item \texttt{id\_ies}, \texttt{campus}, \texttt{nome\_municipio\_ies} - informações sobre instituição de ensino;
+    \item \texttt{curso}, \texttt{turno\_curso}, \texttt{tipo\_bolsa}, \texttt{modalidade\_ensino}. 
+\end{itemize}
+
+
+\textbf{Sisu:} contém inscrições entre 2017 e 2022, com foco em cursos das áreas de tecnologia e engenharias, incluindo os seguintes atributos:
+\begin{itemize}
+    \item \texttt{ano},
+    \item \texttt{id\_ies}, \texttt{sigla\_ies} - identificador da instituição de ensino;
+    \item \texttt{nome\_curso},  \texttt{modalidade\_concorrencia}  - ; informação sobre inscrição do candidato; 
+    \item \texttt{cpf}, \texttt{sexo}, \texttt{data\_nascimento} - informações sobre o candidato;
+\end{itemize}
+
+Ambos os conjuntos de dados possuem tamanho considerável (sisu: 1812156 registros, prouni: 95032 registros) e foram armazenados no Databricks em formato \textit{Delta Lake}, o que permite controle de versionamento e otimização de leitura e escrita.  
+O carregamento foi feito utilizando a API do \texttt{PySpark}, com inferência de esquema e gravação em tabelas Delta (\texttt{delta\_sisu} e \texttt{delta\_prouni}).
+
+\subsection{Análises Realizadas}
+
+\textbf{1. Filtragem condicional por sexo (Sisu)}  
+A primeira análise buscou identificar o número de inscrições do sexo feminino no Sisu, aplicando um filtro simples sobre o atributo \texttt{sexo}.  
+Essa operação visa observar a representatividade feminina em cursos de tecnologia.  
+
+
+\textbf{2. Busca textual por curso (Sisu)}  
+Utilizou-se uma consulta com o operador \texttt{LIKE} para identificar cursos cujo nome contém o termo ``ANÁLISE''.  
+Em seguida, os cursos foram agrupados por instituição de ensino (\texttt{sigla\_ies}) e agregados em listas únicas.  
+
+
+\textbf{3. Média de inscritos por curso em cada instituição (Sisu)}  
+Primeiro foi calculada a contagem total de candidatos por curso e instituição, seguida da média de inscritos por curso em cada instituição.  
+
+\textbf{4. Normalização e cruzamento de dados (Sisu e Prouni)}  
+Antes da integração, ambos os conjuntos foram sanitizados:
+\begin{itemize}
+    \item Remoção de acentuação dos nomes de cursos;
+    \item Normalização de CPF (remoção de caracteres não numéricos);
+    \item Conversão de campos textuais para minúsculas.
+\end{itemize}
+
+Após a normalização, os dados foram gravados novamente como tabelas Delta, garantindo consistência e versionamento.
+
+\textbf{5. Comparativo de inscrição por CPF entre programas}  
+Foi investigado se há indivíduos que participaram de ambos os programas, considerando especificamente o curso de \textit{Análise e Desenvolvimento de Sistemas}.  
+Foram cruzados os CPFs normalizados, identificando casos em que o candidato ingressou no Sisu em ano posterior ao Prouni.  
+
+
+\textbf{6. Cálculo da média de idade por curso e instituição (Sisu e Prouni)}  
+A partir da data de nascimento, foi calculada a idade aproximada dos candidatos em ambos os programas.  
+As informações foram unificadas e agrupadas por curso e instituição, permitindo calcular a média de idade e o total de pessoas por grupo.  
+
+
+\subsection{Síntese do Estudo}
+
+O conjunto de análises permite explorar a estrutura, perfil e inter-relação entre dois programas distintos de ingresso ao ensino superior.  
+Ainda que os dados apresentem períodos e escopos diferentes, o uso do Databricks e do formato Delta Lake possibilitou o tratamento, a padronização e o cruzamento eficiente das informações.  
+
+
 
 \section{Resultados e Avaliações}
 
-Os testes foram realizados em uma máquina com processador Intel i7, 16 GB de RAM e SSD de 512 GB, rodando Ubuntu 22.04. Cada operação foi executada três vezes, e o tempo médio foi registrado.
+Os testes foram realizados em uma máquina com processador Intel i5, 8 GB de RAM e SSD de 512 GB, rodando Windows 11 v. 24H2. Cada operação foi executada três vezes, e o tempo médio foi registrado.
 
 \begin{center}
 \begin{tabular}{|l|c|c|}
 \hline
-\textbf{Operação} & \textbf{PostgreSQL (ms)} & \textbf{MongoDB (ms)} \\ \hline
-Inserção de Dados & 261 & 731 \\ \hline
-Atualização        & 3   & 7   \\ \hline
-Consulta Média     & 47  & 2   \\ \hline
-Busca de Texto     & 124 & 39  \\ \hline
+\textbf{Operação} & \textbf{PostgreSQL (ms)} & \textbf{Databricks (ms)}\\ \hline
+Inserção de Dados & *& 3620\\ \hline
+Filtragem condicional& *& 1053\\ \hline
+Busca de Texto& *& 1455\\ \hline
+Busca Média& *& 1897\\ \hline
 \end{tabular}
 \end{center}
 
