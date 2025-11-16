@@ -85,16 +85,16 @@ Para a construção do estudo de caso, foram utilizados dois conjuntos de dados 
     \item \texttt{sexo}, \texttt{raca\_cor}, \texttt{data\_nascimento} - informações sobre o candidato;
     \item \texttt{beneficiario\_deficiente} – indicador de deficiência;
     \item \texttt{id\_ies}, \texttt{campus}, \texttt{nome\_municipio\_ies} - informações sobre instituição de ensino;
-    \item \texttt{curso}, \texttt{turno\_curso}, \texttt{tipo\_bolsa}, \texttt{modalidade\_ensino}.  \newline
+    \item \texttt{curso}, \texttt{turno\_curso}, \texttt{tipo\_bolsa}, \texttt{modalidade\_ensino}. 
 \end{itemize}
- 
+
 
 \textbf{Sisu:} contém inscrições entre 2017 e 2022, com foco em cursos das áreas de tecnologia e engenharias, incluindo os seguintes atributos:
 \begin{itemize}
     \item \texttt{ano},
     \item \texttt{id\_ies}, \texttt{sigla\_ies} - identificador da instituição de ensino;
     \item \texttt{nome\_curso},  \texttt{modalidade\_concorrencia}  - ; informação sobre inscrição do candidato; 
-    \item \texttt{cpf}, \texttt{sexo}, \texttt{data\_nascimento} - informações sobre o candidato;  \newline
+    \item \texttt{cpf}, \texttt{sexo}, \texttt{data\_nascimento} - informações sobre o candidato;
 \end{itemize}
 
 Ambos os conjuntos de dados possuem tamanho considerável (sisu: 1812156 registros, prouni: 95032 registros) e foram armazenados no Databricks em formato \textit{Delta Lake}, o que permite controle de versionamento e otimização de leitura e escrita.  
@@ -120,7 +120,7 @@ Antes da integração, ambos os conjuntos foram sanitizados:
 \begin{itemize}
     \item Remoção de acentuação dos nomes de cursos;
     \item Normalização de CPF (remoção de caracteres não numéricos);
-    \item Conversão de campos textuais para minúsculas.  \newline
+    \item Conversão de campos textuais para minúsculas.
 \end{itemize}
 
 Após a normalização, os dados foram gravados novamente como tabelas Delta, garantindo consistência e versionamento.
@@ -147,33 +147,18 @@ Ainda que os dados apresentem períodos e escopos diferentes, o uso do Databrick
 Os testes foram realizados em uma máquina com processador Intel i5, 8 GB de RAM e SSD de 512 GB, rodando Windows 11 v. 24H2. Cada operação foi executada três vezes, e o tempo médio foi registrado.
 
 \begin{center}
-\subsection{Dataset SISU}
 \begin{tabular}{|l|c|c|}
 \hline
 \textbf{Operação} & \textbf{PostgreSQL (ms)} & \textbf{Databricks (ms)}\\ \hline
-Inserção de Dados & *& 6052\\ \hline
-Filtragem condicional& *& 2068\\ \hline
-Busca de Texto& *& 1376\\ \hline
-Busca Média& *& 1366\\ \hline
+Inserção de Dados & *& 3620\\ \hline
+Filtragem condicional& *& 1053\\ \hline
+Busca de Texto& *& 1455\\ \hline
+Busca Média& *& 1897\\ \hline
 \end{tabular}
 \end{center}
 
-Os resultados mostram que o MongoDB teve desempenho superior em consultas simples e buscas textuais, enquanto o PostgreSQL se destacou em operações de escrita e consistência transacional. Em termos de uso de memória, o MongoDB apresentou consumo cerca de 30\% maior, mas com menor tempo de resposta.  \newline
+Os resultados mostram que o MongoDB teve desempenho superior em consultas simples e buscas textuais, enquanto o PostgreSQL se destacou em operações de escrita e consistência transacional. Em termos de uso de memória, o MongoDB apresentou consumo cerca de 30\% maior, mas com menor tempo de resposta.
 
-\begin{center}
-\subsection{Dataset ProUni}
-\begin{tabular}{|l|c|c|}
-\hline
-\textbf{Operação} & \textbf{PostgreSQL (ms)} & \textbf{Databricks (ms)}\\ \hline
-Inserção de Dados & *& 2672\\ \hline
-Normalização e cruzamento dos dados& *& 3131\\ \hline
-Comparativo entre programas& *& 10656\\ \hline
-Busca Média& *& 912\\ \hline
-\end{tabular}
-\end{center}
-
-Os resultados mostram que o MongoDB teve desempenho superior em consultas simples e buscas textuais, enquanto o PostgreSQL se destacou em operações de escrita e consistência transacional. Em termos de uso de memória, o MongoDB apresentou consumo cerca de 30\% maior, mas com menor tempo de resposta.  
-\newline
 \section{Conclusão}
 
 Com base nos experimentos realizados, conclui-se que o MongoDB oferece maior flexibilidade e velocidade em consultas com alto volume de dados sem estrutura rígida, sendo ideal para aplicações que priorizam escalabilidade. Já o PostgreSQL se mantém mais adequado em contextos que exigem integridade relacional e consistência de dados.
@@ -200,6 +185,6 @@ Sociedade Brasileira de Computação. \textit{Template para Artigos e Capítulos
 
 \section*{Anexos}
 
-Os scripts utilizados para importação, tratamento e consulta dos dados foram desenvolvidos em Python, utilizando a API do  \textit{PySpark} para processamento distribuído e o formato \textit{Delta Lake} para armazenamento e versionamento das tabelas. O código completo, incluindo instruções de execução (\textit{how-to}), encontra-se disponível no repositório GitHub vinculado ao projeto. 
+Os scripts utilizados para importação e consulta dos dados foram desenvolvidos em Python, utilizando as bibliotecas \textit{pymongo} e \textit{psycopg2}. O código completo, incluindo o \textit{how-to} de execução, encontra-se disponível em repositório GitHub vinculado ao projeto.
 
 \end{document}
