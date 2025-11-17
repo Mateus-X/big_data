@@ -26,15 +26,11 @@ Este artigo apresenta uma análise comparativa entre a plataforma de processamen
 
 \section{Introdução}
 
-O crescimento exponencial do volume de dados gerados por sensores, redes sociais e dispositivos conectados trouxe novos desafios para o armazenamento e a manipulação eficiente de informações. Nesse contexto, surgiram as tecnologias de \textit{Big Data}, que oferecem soluções escaláveis para o tratamento de grandes volumes de dados de maneira distribuída.
+O crescimento acelerado da geração de dados por sensores, redes sociais e dispositivos conectados tornou essencial o uso de tecnologias capazes de armazenar e processar grandes volumes de informações de forma eficiente e distribuída. Nesse cenário, soluções de \textit{Big Data} ganharam destaque por oferecerem escalabilidade e alto desempenho.
 
-Este trabalho tem como objetivo comparar o desempenho de uma tecnologia BigData, o Databricks, com o sistema relacional PostgreSQL, aplicando ambas as ferramentas a um conjunto de dados institucionais reais. A análise foca no tempo de execução, uso de memória e facilidade de modelagem.
+Este trabalho compara o Databricks, uma plataforma baseada em processamento distribuído, ao sistema relacional PostgreSQL, aplicando ambos a um conjunto real de dados institucionais. A análise considera tempo de execução, uso de memória e facilidade de modelagem, avaliando em quais contextos cada tecnologia se destaca.
 
-Assim, busca-se investigar se tecnologias de Big Data, como o Databricks, oferecem vantagens significativas de desempenho e escalabilidade em relação a sistemas relacionais tradicionais, como o PostgreSQL, especialmente em cenários de grande volume e variedade de dados.
-
-Mais do que determinar qual tecnologia é superior, o propósito desta comparação é compreender como cada solução se destaca em contextos distintos. Enquanto o Databricks, apoiado pelo Apache Spark, foi projetado para processar grandes massas de dados de forma distribuída e escalável, o PostgreSQL mantém sua força em ambientes transacionais e estruturados, que exigem integridade e consistência rigorosas.
-
-Dessa forma, a análise busca evidenciar as especificidades e complementaridades entre essas abordagens, mostrando que a escolha entre uma tecnologia de Big Data e um sistema relacional não é excludente, mas sim dependente do tipo de problema, da natureza dos dados e dos requisitos de desempenho e flexibilidade de cada cenário.\\
+Enquanto o Databricks, apoiado pelo Apache Spark, é projetado para grandes volumes e cenários analíticos complexos, o PostgreSQL mantém sua robustez em aplicações transacionais e estruturadas, com forte ênfase em integridade e consistência. Assim, a comparação evidencia que a escolha entre Big Data e bancos relacionais depende diretamente da natureza do problema, dos requisitos de desempenho e das características dos dados, reforçando que ambas as abordagens podem ser complementares.
 
 \section{Tecnologia Big Data Utilizada}
 
@@ -56,19 +52,24 @@ O Apache Spark é o motor subjacente que possibilita o processamento distribuíd
 
 Além disso, o Databricks permite a execução de notebooks interativos, onde os usuários podem escrever código, visualizar dados e realizar análises em tempo real, tudo dentro da plataforma. Os notebooks são colaborativos, possibilitando a colaboração entre equipes, e podem ser integrados a outras ferramentas de BI (business intelligence) e visualização.
 
-\subsubsection{Delta Lake: A Solução de Governança para Dados no Databricks}
+\subsubsection{Modelagem de Dados no Databricks com Delta Tables}
 
-Uma das principais inovações do Databricks é o conceito de Delta Lake, uma camada de armazenamento transacional baseada no Apache Spark que garante a integridade e consistência dos dados. O Delta Lake utiliza a arquitetura ACID (Atomicidade, Consistência, Isolamento e Durabilidade), que oferece recursos como:
+A modelagem de dados no Databricks se apoia diretamente na combinação entre o formato Parquet e a camada transacional do Delta Lake. Essa abordagem não apenas garante governança e consistência, mas também oferece grande flexibilidade para estruturar dados em ambientes distribuídos.
+
+As Delta Tables são construídas sobre arquivos Parquet organizados em diretórios, onde cada arquivo representa um fragmento da tabela. O Parquet utiliza um formato colunar, no qual os valores de cada atributo são armazenados em blocos homogêneos, otimizando compressão, leitura seletiva e paralelismo no processamento. Em essência, cada coluna contém pares estruturados “campo → valores”, o que se aproxima conceitualmente de um document store, no qual cada chave identifica um conjunto de valores associados.
+
+O Delta Lake adiciona uma camada de controle transacional à estrutura colunar. Cada tabela é acompanhada por um transaction log (\_delta\_log), composto por arquivos JSON e Parquet que registram todas as operações aplicadas, incluindo criação, inserção, deleção, atualizações e metadados de esquema. Durante a modelagem, essa combinação fornece:
 
 \begin{itemize}
-    \item \textbf{Versionamento de dados:} O Delta Lake mantém o histórico de todas as alterações nos dados, permitindo que os usuários possam "voltar no tempo" e acessar versões anteriores dos dados, facilitando a detecção e correção de erros.
-    \item \textbf{Governança de dados:} A plataforma garante integridade e qualidade nos dados, com funcionalidades como schema enforcement (aplicação automática de um esquema de dados) e schema evolution (capacidade de evoluir o esquema conforme os dados mudam ao longo do tempo).
-    \item \textbf{Upserts e Deletes eficientes:} Ao contrário dos tradicionais data lakes, que não possuem um mecanismo eficaz para operações de atualização e exclusão de dados, o Delta Lake permite operações de MERGE, onde é possível combinar dados de diferentes fontes de forma otimizada, sem necessidade de reprocessamento completo.
+\item \textbf{Controle ACID sobre arquivos Parquet:} Cada operação é registrada como um conjunto de actions no log, garantindo atomicidade e isolamento mesmo em clusters distribuídos.
+\item \textbf{Evolução de esquema:} Alterações de estruturas são aplicadas incrementalmente, preservando compatibilidade com versões anteriores e mantendo rastreabilidade.
+\item \textbf{Upserts, merges e deletes eficientes:} O Databricks reescreve apenas os arquivos Parquet impactados, combinando metadados de partições, estatísticas de coluna e índices de arquivos para minimizar I/O.
+\item \textbf{Versionamento completo:} Cada modificação gera um novo estado da tabela, permitindo consultas temporais e auditoria detalhada.
 \end{itemize}
 
-O uso de Delta Tables, que são tabelas armazenadas em formato Parquet dentro do Delta Lake, é fundamental para a construção de pipelines de dados que exigem alta confiabilidade e desempenho, sem perder a flexibilidade e escalabilidade dos data lakes.
+Na prática, o armazenamento colunar fornece organização clara por atributos, enquanto o Delta Lake oferece mecanismos de governança comparáveis aos de sistemas transacionais clássicos. Essa união permite ao Databricks adotar uma modelagem que preserva estrutura — típica de um banco relacional — e, ao mesmo tempo, mantém características de flexibilidade e granularidade encontradas em modelos orientados a documentos, onde cada coluna funciona como uma chave que referencia seus respectivos valores.
 
-Em comparação com bancos de dados relacionais, o Databricks se destaca em cenários que exigem escalabilidade, processamento paralelo e integração com dados não estruturados. Enquanto os bancos relacionais são mais adequados para aplicações transacionais e dados estruturados, o Databricks é ideal para análise de grandes volumes de informações, aprendizado de máquina e processamento em tempo real, características típicas de ambientes de Big Data.
+Esse modelo híbrido torna as Delta Tables especialmente adequadas para arquiteturas analíticas, pipelines de larga escala, workloads de machine learning e cenários que exigem leitura seletiva e atualizações complexas em grandes volumes de dados.
 
 \section{Estudo de Caso}
 
@@ -125,12 +126,8 @@ Antes da integração, ambos os conjuntos foram sanitizados:
 
 Após a normalização, os dados foram gravados novamente como tabelas Delta, garantindo consistência e versionamento.
 
-\textbf{5. Comparativo de inscrição por CPF entre programas}  
-Foi investigado se há indivíduos que participaram de ambos os programas, considerando especificamente o curso de \textit{Análise e Desenvolvimento de Sistemas}.  
-Foram cruzados os CPFs normalizados, identificando casos em que o candidato ingressou no Sisu em ano posterior ao Prouni.  
 
-
-\textbf{6. Cálculo da média de idade por curso e instituição (Sisu e Prouni)}  
+\textbf{5. Cálculo da média de idade por curso e instituição (Sisu e Prouni)}  
 A partir da data de nascimento, foi calculada a idade aproximada dos candidatos em ambos os programas.  
 As informações foram unificadas e agrupadas por curso e instituição, permitindo calcular a média de idade e o total de pessoas por grupo.  
 
@@ -144,51 +141,85 @@ Ainda que os dados apresentem períodos e escopos diferentes, o uso do Databrick
 
 \section{Resultados e Avaliações}
 
-Os testes foram realizados em uma máquina com processador Intel i5, 8 GB de RAM e SSD de 512 GB, rodando Windows 11 v. 24H2. Cada operação foi executada três vezes, e o tempo médio foi registrado.
+\subsection{Modelagem dos dados}
 
-\begin{center}
+Para o PostgreSQL, foram geradas as tabelas SQL com campos espelhados aos do Dataset. Seu DDL (Data Definition Language) pode ser conferido nos Anexos.
+Quanto a modelagem dentro do databricks, as Delta Tables mapeiam via identificador colunar os conteúdos para dentro dos arquivos .parquet, mantendo também a estrutura dos Datasets CSV.
+
+\subsection{Análises Comparativas}
+
+Os experimentos foram realizados em dois ambientes computacionais com arquiteturas distintas. O primeiro corresponde ao Databricks Serverless Free Edition, um serviço totalmente gerenciado que aloca recursos computacionais de forma elástica, sem permitir ao usuário configurar diretamente a quantidade de CPU, memória ou paralelismo disponível. Nesse modelo, as operações são executadas sobre uma camada distribuída de Spark otimizada para cargas analíticas, com autoscaling transparente e armazenamento nativo em Delta Lake. O segundo ambiente consiste em uma instância PostgreSQL 18 executada em Docker, utilizando integralmente os recursos da máquina hospedeira, já que o contêiner não possui limites explícitos de CPU ou memória definidos.\\  O host local é equipado com um processador Intel Core i5-12500H (12 núcleos híbridos, clock base de 2,5 GHz), 24 GB de memória RAM DDR4 a 3200 MHz (Samsung 8 GB + Kingston 16 GB) e um SSD NVMe Micron 2400 de 512 GB, características que definem o desempenho efetivo disponível para o PostgreSQL durante os testes. O contêiner opera com volumes persistentes, porta 5432 exposta e configuração padrão do PostgreSQL, executando todas as operações de forma relacional e centralizada em um único nó.
+
 \subsection{Dataset SISU}
+\begin{center}
 \begin{tabular}{|l|c|c|}
 \hline
 \textbf{Operação} & \textbf{PostgreSQL (ms)} & \textbf{Databricks (ms)}\\ \hline
-Inserção de Dados & *& 6052\\ \hline
-Filtragem condicional& *& 2068\\ \hline
-Busca de Texto& *& 1376\\ \hline
-Busca Média& *& 1366\\ \hline
+Inserção de Dados & 15707.182 & 6052 \\ \hline
+Filtragem condicional & 430.071 & 2068 \\ \hline
+Busca de Texto & 993 & 1376 \\ \hline
+Busca Média & 128 & 1366 \\ \hline
 \end{tabular}
 \end{center}
 
-Os resultados mostram que o MongoDB teve desempenho superior em consultas simples e buscas textuais, enquanto o PostgreSQL se destacou em operações de escrita e consistência transacional. Em termos de uso de memória, o MongoDB apresentou consumo cerca de 30\% maior, mas com menor tempo de resposta.  \newline
+Query de Filtragem adicional (restante das queries no anexo):\\
+\begin{verbatim}
+SELECT *
+FROM sisu
+WHERE sexo = 'F';
+\end{verbatim}
+
+
+Os resultados mostram que o Databricks foi mais rápido na inserção de dados, sugerindo maior eficiência no processo de escrita distribuída e no uso do Delta Lake, que aplica compactação de arquivos e paralelização na etapa de carga. Por ser baseado no Spark, o carregamento de arquivos CSV com paralelismo e escrita distríbuida torna o processo duas vezes mais rápido. 
+
+Além disso, no PostgreSQL foi necessário carregar os datasets para dentro do servidor e executar uma query de cópia de dados com delimitadores csv, um processo ineficiente, manual e pouco escalável. No Databricks, seu padrão serverless on-cloud torna o processo mais fácil e rápido que o banco relacional padrão.
+
+No entanto, todas as consultas foram mais rápidas no PostgreSQL, contradizendo a análise anterior. Nas filtragens condicionais, nas buscas textuais e nas consultas de agregação, o Postgres se mostrou superior pelo uso eficiente de indexação e o Databricks apresentou maior latência em consultas devido ao overhead do motor distribuído, que inclui inicialização de jobs, leitura de arquivos particionados e gerenciamento do cluster. Mesmo com paralelização, esse custo fixo reduz o desempenho para operações simples e datasets de pequena ou média escala.
+
+Esse custo fixo se mostra em sua maioria em aproximadamente 1s.
+
+\subsection{Dataset Cruzado ProUni x SISU}
 
 \begin{center}
-\subsection{Dataset ProUni}
 \begin{tabular}{|l|c|c|}
 \hline
 \textbf{Operação} & \textbf{PostgreSQL (ms)} & \textbf{Databricks (ms)}\\ \hline
-Inserção de Dados & *& 2672\\ \hline
-Normalização e cruzamento dos dados& *& 3131\\ \hline
-Comparativo entre programas& *& 10656\\ \hline
-Busca Média& *& 912\\ \hline
+Normalização e cruzamento dos dados & 11435 & 10207 \\ \hline
+Busca Média & 1223 & 912 \\ \hline
 \end{tabular}
 \end{center}
 
-Os resultados mostram que o MongoDB teve desempenho superior em consultas simples e buscas textuais, enquanto o PostgreSQL se destacou em operações de escrita e consistência transacional. Em termos de uso de memória, o MongoDB apresentou consumo cerca de 30\% maior, mas com menor tempo de resposta.  
+O Databricks apresentou desempenho ligeiramente superior, especialmente nas operações com maior carga de transformação. O processamento distribuído do Spark reduz o tempo total em workloads mais pesados, enquanto o PostgreSQL mantém bom desempenho, mas limitado pela execução em nó único. No conjunto cruzado, as agregações também foram mais rápidas no Databricks, reforçando o benefício do paralelismo em etapas com maior volume intermediário.
+
+\subsubsection*{Análise Comparativa de Memória e I/O no cenário de Busca Média - Prouni x Sisu}
+
+A execução revelou diferenças claras no uso de recursos. O PostgreSQL processou aproximadamente 402 MB em leituras devido ao formato linha-a-linha e ao uso de varreduras completas. Já o Databricks leu apenas 5.55 MB, beneficiando-se do armazenamento colunar, que permite carregar apenas as colunas necessárias. Em contraste, o consumo de memória do Databricks foi maior, pois o mecanismo Photon utiliza vetorização e paralelismo agressivo para reduzir a dependência de operações de disco.
+
+\begin{center}
+\begin{tabular}{|l|c|c|}
+\hline
+\textbf{Métrica} & \textbf{PostgreSQL} & \textbf{Databricks} \\ \hline
+Bytes lidos (I/O) & 402 MB & 5.55 MB \\ \hline
+Memória utilizada (total) & 3--4 MB & 211 MB \\ \hline
+Linhas processadas & 1.9 milhões & 1.9 milhões \\ \hline
+Perfil de execução & Armazenamento em linhas & Armazenamento colunar e paralelização \\ \hline
+\end{tabular}
+\end{center}
+Dados e resultados relacionados ao conteúdo da tabela nos Anexos.
+
+A comparação mostra que o PostgreSQL é mais econômico em memória, enquanto o Databricks aumenta o uso de RAM para reduzir leituras de disco e acelerar operações analíticas.
+
 \newline
 \section{Conclusão}
 
-Com base nos experimentos realizados, conclui-se que o MongoDB oferece maior flexibilidade e velocidade em consultas com alto volume de dados sem estrutura rígida, sendo ideal para aplicações que priorizam escalabilidade. Já o PostgreSQL se mantém mais adequado em contextos que exigem integridade relacional e consistência de dados.
+A comparação mostra que Databricks e PostgreSQL atendem a propósitos diferentes dentro do processamento de dados. O Databricks, apoiado no Spark e no Delta Lake, teve melhor desempenho em cargas analíticas, transformações intensivas e manipulação de grandes volumes, graças à arquitetura distribuída e ao otimizador Catalyst. Já o PostgreSQL se sobressaiu em consultas relacionais tradicionais, com baixa latência, uso eficiente de índices e forte consistência transacional, o que o torna ideal para aplicações corporativas e cenários OLTP.
 
-Recomenda-se o uso do MongoDB em cenários de coleta e análise contínua de dados, como sistemas meteorológicos e de IoT, enquanto o PostgreSQL é mais indicado para aplicações financeiras e corporativas.
-
-
+Assim, recomenda-se Databricks para pipelines analíticos complexos e processamento massivamente paralelo, enquanto o PostgreSQL permanece mais adequado para estruturas relacionais estáveis e volumes moderados. As tecnologias não competem entre si: combinadas, oferecem uma arquitetura híbrida capaz de explorar o melhor de cada abordagem.
 \begin{thebibliography}{99}
 
 \bibitem{databricks}
 Introdução ao Databricks no AWS. Disponível em: \url{https://docs.databricks.com/aws/pt/introduction/#casos-de-uso-comuns}
 . Acesso em: nov. 2025.
-
-\bibitem{mongodb}
-Chodorow, K. (2013). \textit{MongoDB: The Definitive Guide}. O'Reilly Media.
 
 \bibitem{postgresql}
 Momjian, B. (2021). \textit{PostgreSQL: Introduction and Concepts}. Addison-Wesley.
@@ -200,6 +231,262 @@ Sociedade Brasileira de Computação. \textit{Template para Artigos e Capítulos
 
 \section*{Anexos}
 
-Os scripts utilizados para importação, tratamento e consulta dos dados foram desenvolvidos em Python, utilizando a API do  \textit{PySpark} para processamento distribuído e o formato \textit{Delta Lake} para armazenamento e versionamento das tabelas. O código completo, incluindo instruções de execução (\textit{how-to}), encontra-se disponível no repositório GitHub vinculado ao projeto. 
+Os datasets utilizados neste estudo estão disponíveis publicamente nos links abaixo, bem como o repositório contendo os scripts em Python, códigos SQL e instruções detalhadas de execução.
+
+
+    \textbf{Dataset SISU (Drive):} \\
+    \url{https://drive.google.com/file/d/1gAiybq6FHuZ4XTU8vx-fhlTH5kHuoQrD/view?usp=sharing}
+    \\
+    \textbf{Dataset ProUni (Drive):} \\
+    \url{https://drive.google.com/file/d/1w3Wv72iMsgiDlmy-v3h8ipsBJgiEK7B8/view?usp=sharing}
+    \\
+    \textbf{Repositório GitHub:} \url{https://github.com/Mateus-X/big_data}
+
+\begin{verbatim}
+    -- MODELAGEM DOS DADOS
+CREATE TABLE prouni (
+    ano SMALLINT NOT NULL,
+    sigla_uf CHAR(2) NOT NULL,
+    id_municipio INT,
+    cpf CHAR(20) NOT NULL,
+    sexo CHAR(1) NOT NULL,
+    raca_cor SMALLINT,
+    data_nascimento DATE,
+    beneficiario_deficiente BOOLEAN,
+    id_ies INT,
+    campus VARCHAR(100),
+    nome_municipio_ies VARCHAR(100),
+    curso VARCHAR(150),
+    turno_curso SMALLINT,
+    tipo_bolsa SMALLINT,
+    modalidade_ensino SMALLINT
+);
+
+CREATE TABLE sisu (
+    ano SMALLINT NOT NULL,
+    id_ies INT NOT NULL,
+    sigla_ies VARCHAR(20),
+    nome_curso VARCHAR(150),
+    modalidade_concorrencia text,
+    cpf CHAR(20) NOT NULL,
+    sexo CHAR(1) NOT NULL,
+    data_nascimento DATE
+);
+
+-- UMA TABELA
+-- 
+SELECT *
+FROM sisu
+WHERE sexo = 'F';
+
+SELECT 
+    sigla_ies,
+    ARRAY_AGG(DISTINCT nome_curso) AS cursos_analise
+FROM sisu
+WHERE nome_curso ILIKE '%ANÁLISE%'
+GROUP BY sigla_ies;
+
+SELECT 
+    sigla_ies,
+    nome_curso,
+    COUNT(*) AS total_pessoas
+FROM sisu
+GROUP BY sigla_ies, nome_curso;
+
+SELECT 
+    sigla_ies,
+    AVG(total_pessoas) AS media_pessoas_por_curso
+FROM (
+    SELECT 
+        sigla_ies,
+        nome_curso,
+        COUNT(*) AS total_pessoas
+    FROM sisu
+    GROUP BY sigla_ies, nome_curso
+) AS qtd_por_curso_instituicao
+GROUP BY sigla_ies
+ORDER BY media_pessoas_por_curso DESC;
+
+
+-- DUAS TABELAS 
+-- Normaliza as tabelas e grava em tabelas auxiliares
+CREATE TABLE prouni_norm AS
+SELECT
+    *,
+    lower(unaccent(curso)) AS curso_norm,
+    regexp_replace(cpf, '\D', '', 'g') AS cpf_norm
+FROM prouni;
+
+CREATE TABLE sisu_norm AS
+SELECT
+    *,
+    lower(unaccent(nome_curso)) AS curso_norm,
+    regexp_replace(cpf, '\D', '', 'g') AS cpf_norm
+FROM sisu;
+
+-- Prouni
+CREATE TEMP TABLE prouni_ano AS
+SELECT
+    cpf_norm AS cpf,
+    MAX(ano) AS ano_prouni
+FROM prouni_norm
+WHERE curso_norm LIKE '%analise e desenvolvimento de sistemas%'
+GROUP BY cpf_norm;
+
+-- Sisu
+CREATE TEMP TABLE sisu_ano AS
+SELECT
+    cpf_norm AS cpf,
+    MAX(ano) AS ano_sisu
+FROM sisu_norm
+WHERE curso_norm LIKE '%analise e desenvolvimento de sistemas%'
+GROUP BY cpf_norm;
+
+SELECT
+    p.cpf,
+    p.ano_prouni,
+    s.ano_sisu
+FROM prouni_ano p
+JOIN sisu_ano s ON p.cpf = s.cpf
+WHERE s.ano_sisu > p.ano_prouni
+ORDER BY p.cpf;
+
+-- União das duas tabelas com cálculo de idade
+WITH prouni_idade AS (
+    SELECT
+        id_ies,
+        lower(unaccent(curso)) AS curso,
+        FLOOR(EXTRACT(YEAR FROM AGE(current_date, data_nascimento))) AS idade
+    FROM prouni
+),
+sisu_idade AS (
+    SELECT
+        id_ies,
+        lower(unaccent(nome_curso)) AS curso,
+        FLOOR(EXTRACT(YEAR FROM AGE(current_date, data_nascimento))) AS idade
+    FROM sisu
+),
+todas AS (
+    SELECT * FROM prouni_idade
+    UNION ALL
+    SELECT * FROM sisu_idade
+)
+SELECT
+    curso,
+    id_ies,
+    COUNT(idade) AS total_pessoas,
+    ROUND(AVG(idade)::numeric, 2) AS media_idade
+FROM todas
+GROUP BY curso, id_ies
+ORDER BY media_idade DESC;
+
+
+
+
+
+-- Análise de memória
+WITH prouni_idade AS (
+    SELECT
+        id_ies,
+        lower(unaccent(curso)) AS curso,
+        FLOOR(EXTRACT(YEAR FROM AGE(current_date, data_nascimento))) AS idade
+    FROM prouni
+),
+sisu_idade AS (
+    SELECT
+        id_ies,
+        lower(unaccent(nome_curso)) AS curso,
+        FLOOR(EXTRACT(YEAR FROM AGE(current_date, data_nascimento))) AS idade
+    FROM sisu
+),
+todas AS (
+    SELECT * FROM prouni_idade
+    UNION ALL
+    SELECT * FROM sisu_idade
+)
+SELECT
+    curso,
+    id_ies,
+    COUNT(idade) AS total_pessoas,
+    ROUND(AVG(idade)::numeric, 2) AS media_idade
+FROM todas
+GROUP BY curso, id_ies
+ORDER BY media_idade DESC;
+
+-- Resultado
+web_II=# EXPLAIN (ANALYZE, BUFFERS) WITH prouni_idade AS (
+    SELECT
+        id_ies,
+        lower(unaccent(curso)) AS curso,
+        FLOOR(EXTRACT(YEAR FROM AGE(current_date, data_nascimento))) AS idade
+    FROM prouni
+),
+sisu_idade AS (
+    SELECT
+        id_ies,
+        lower(unaccent(nome_curso)) AS curso,
+        FLOOR(EXTRACT(YEAR FROM AGE(current_date, data_nascimento))) AS idade
+    FROM sisu
+),
+todas AS (
+    SELECT * FROM prouni_idade
+    UNION ALL
+    SELECT * FROM sisu_idade
+)
+SELECT
+    curso,
+    id_ies,
+    COUNT(idade) AS total_pessoas,
+    ROUND(AVG(idade)::numeric, 2) AS media_idade
+FROM todas
+GROUP BY curso, id_ies
+ORDER BY media_idade DESC;                                                                           QUERY PLAN                                                           
+                
+------------------------------------------------------------------------------------------------------------------------------------------------
+----------------
+ Sort  (cost=217142.93..217242.93 rows=40000 width=76) (actual time=1616.789..1621.735 rows=1818.00 loops=1)
+   Sort Key: (round(avg((floor(EXTRACT(year FROM age((CURRENT_DATE)::timestamp with time zone, (sisu.data_nascimento)::timestamp with time zone)
+)))), 2)) DESC
+   Sort Method: quicksort  Memory: 183kB
+   Buffers: shared hit=7072 read=44332
+   ->  Finalize GroupAggregate  (cost=201104.60..214085.38 rows=40000 width=76) (actual time=1611.783..1620.218 rows=1818.00 loops=1)
+         Group Key: (lower(unaccent((sisu.nome_curso)::text))), sisu.id_ies
+         Buffers: shared hit=7072 read=44332
+         ->  Gather Merge  (cost=201104.60..212285.38 rows=96000 width=76) (actual time=1611.656..1617.726 rows=3117.00 loops=1)
+               Workers Planned: 2
+               Workers Launched: 2
+               Buffers: shared hit=7072 read=44332
+               ->  Sort  (cost=200104.58..200204.58 rows=40000 width=76) (actual time=1455.657..1455.816 rows=1039.00 loops=3)
+                     Sort Key: (lower(unaccent((sisu.nome_curso)::text))), sisu.id_ies
+                     Sort Method: quicksort  Memory: 281kB
+                     Buffers: shared hit=7072 read=44332
+                     Worker 0:  Sort Method: quicksort  Memory: 152kB
+                     Worker 1:  Sort Method: quicksort  Memory: 66kB
+                           ->  Partial HashAggregate  (cost=177917.97..197047.04 rows=40000 width=76) (actual time=1452.369..1453.346 rows=1039.00 loops=3)
+                           Group Key: (lower(unaccent((sisu.nome_curso)::text))), sisu.id_ies
+                           Planned Partitions: 4  Batches: 1  Memory Usage: 1553kB
+                           Buffers: shared hit=7042 read=44332
+                           Worker 0:  Batches: 1  Memory Usage: 1169kB
+                           Worker 1:  Batches: 1  Memory Usage: 689kB
+                           ->  Parallel Append  (cost=0.00..79556.52 rows=794840 width=68) (actual time=37.783..1261.406 rows=635729.33 loops=3)
+                                 Buffers: shared hit=7042 read=44332
+                                 ->  Parallel Seq Scan on sisu  (cost=0.00..72337.29 rows=755243 width=68) (actual time=8.964..1097.532 rows=604
+052.00 loops=3)
+                                       Buffers: shared hit=5411 read=44332
+                                 ->  Parallel Seq Scan on prouni  (cost=0.00..3245.04 rows=55901 width=68) (actual time=45.092..160.193 rows=475
+16.00 loops=2)
+                                       Buffers: shared hit=1631
+ Planning Time: 8.918 ms
+ JIT:
+   Functions: 36
+   Options: Inlining false, Optimization false, Expressions true, Deforming true
+   Timing: Generation 19.078 ms (Deform 5.966 ms), Inlining 0.000 ms, Optimization 10.944 ms, Emission 94.256 ms, Total 124.278 ms
+ Execution Time: 1636.690 ms
+(35 rows)
+
+(END)
+
+
+\end{verbatim}
 
 \end{document}
